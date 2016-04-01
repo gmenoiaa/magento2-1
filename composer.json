@@ -11,6 +11,14 @@
         {
             "type": "composer",
             "url": "https://repo.magento.com/"
+        },
+        {
+            "type": "composer",
+            "url": "https://packages.magento.com/"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/gmenoiaa/magento2.git"
         }
     ],
     "require": {
@@ -64,7 +72,8 @@
         "ext-xsl": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "pagseguro/magento2": "dev-fixes"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1.0",
@@ -239,6 +248,6 @@
             "Magento\\TestFramework\\Utility\\": "dev/tests/static/framework/Magento/TestFramework/Utility/"
         }
     },
-    "minimum-stability": "alpha",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
