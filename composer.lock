@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b922f1d317b6c07c64ecf70372b42373",
-    "content-hash": "1186b5d0931d881208e93bb86a5bf7c9",
+    "hash": "7c46fbe366992111f2b05b317a6a7c8c",
+    "content-hash": "18ca4a4d1a4490e2ddb312616699090f",
     "packages": [
         {
             "name": "braintree/braintree_php",
@@ -2850,16 +2850,16 @@
         },
         {
             "name": "phpmd/phpmd",
-            "version": "2.4.2",
+            "version": "2.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpmd/phpmd.git",
-                "reference": "fccbdb6b222f6d7a6d35af1c396ba5435cec76a9"
+                "reference": "e46a0999e0941a6b5677cfa4117e29e70b753de1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/fccbdb6b222f6d7a6d35af1c396ba5435cec76a9",
-                "reference": "fccbdb6b222f6d7a6d35af1c396ba5435cec76a9",
+                "url": "https://api.github.com/repos/phpmd/phpmd/zipball/e46a0999e0941a6b5677cfa4117e29e70b753de1",
+                "reference": "e46a0999e0941a6b5677cfa4117e29e70b753de1",
                 "shasum": ""
             },
             "require": {
@@ -2911,7 +2911,7 @@
                 "phpmd",
                 "pmd"
             ],
-            "time": "2016-03-10 17:17:44"
+            "time": "2016-03-08 12:03:06"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -3995,8 +3995,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "pagseguro/magento2": 20,
-        "phpmd/phpmd": 0
+        "pagseguro/magento2": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
