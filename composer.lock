@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7c46fbe366992111f2b05b317a6a7c8c",
-    "content-hash": "18ca4a4d1a4490e2ddb312616699090f",
+    "hash": "a04e6e77db8d3d808622dc4912a7e0cb",
+    "content-hash": "684630fc61334e814a81a964bddb3c14",
     "packages": [
         {
             "name": "braintree/braintree_php",
@@ -290,6 +290,117 @@
                 "magento"
             ],
             "time": "2016-01-25 22:04:43"
+        },
+        {
+            "name": "magento/module-cms-sample-data",
+            "version": "100.0.5",
+            "dist": {
+                "type": "zip",
+                "url": "https://repo.magento.com/archives/magento/module-cms-sample-data/magento-module-cms-sample-data-100.0.5.0.zip",
+                "reference": null,
+                "shasum": "8465bd459474e4a4fe15126f1a5b3f9cf6a8711d"
+            },
+            "require": {
+                "magento/module-cms": "100.0.*",
+                "magento/module-sample-data": "100.0.*",
+                "magento/module-theme-sample-data": "100.0.*",
+                "magento/sample-data-media": "100.0.*",
+                "php": "~5.5.0|~5.6.0|~7.0.0"
+            },
+            "type": "magento2-module",
+            "autoload": {
+                "files": [
+                    "registration.php"
+                ],
+                "psr-4": {
+                    "Magento\\CmsSampleData\\": ""
+                }
+            },
+            "license": [
+                "OSL-3.0",
+                "AFL-3.0"
+            ],
+            "description": "N/A"
+        },
+        {
+            "name": "magento/module-theme-sample-data",
+            "version": "100.0.5",
+            "dist": {
+                "type": "zip",
+                "url": "https://repo.magento.com/archives/magento/module-theme-sample-data/magento-module-theme-sample-data-100.0.5.0.zip",
+                "reference": null,
+                "shasum": "5d3eb27b7e01717621a390732d2990712f648c00"
+            },
+            "require": {
+                "magento/module-sample-data": "100.0.*",
+                "magento/module-theme": "100.0.*",
+                "php": "~5.5.0|~5.6.0|~7.0.0"
+            },
+            "type": "magento2-module",
+            "autoload": {
+                "files": [
+                    "registration.php"
+                ],
+                "psr-4": {
+                    "Magento\\ThemeSampleData\\": ""
+                }
+            },
+            "license": [
+                "OSL-3.0",
+                "AFL-3.0"
+            ],
+            "description": "N/A"
+        },
+        {
+            "name": "magento/module-widget-sample-data",
+            "version": "100.0.5",
+            "dist": {
+                "type": "zip",
+                "url": "https://repo.magento.com/archives/magento/module-widget-sample-data/magento-module-widget-sample-data-100.0.5.0.zip",
+                "reference": null,
+                "shasum": "4cd2315b516e68697e48f6ebc652563bbcbb353c"
+            },
+            "require": {
+                "magento/module-cms": "100.0.*",
+                "magento/module-sample-data": "100.0.*",
+                "magento/module-theme": "100.0.*",
+                "magento/module-widget": "100.0.*",
+                "php": "~5.5.0|~5.6.0|~7.0.0"
+            },
+            "type": "magento2-module",
+            "autoload": {
+                "files": [
+                    "registration.php"
+                ],
+                "psr-4": {
+                    "Magento\\WidgetSampleData\\": ""
+                }
+            },
+            "license": [
+                "OSL-3.0",
+                "AFL-3.0"
+            ],
+            "description": "N/A"
+        },
+        {
+            "name": "magento/sample-data-media",
+            "version": "100.0.4",
+            "dist": {
+                "type": "zip",
+                "url": "https://repo.magento.com/archives/magento/sample-data-media/magento-sample-data-media-100.0.4.0.zip",
+                "reference": null,
+                "shasum": "43d5618f1939d62f250df1ec015c7589c570eeb0"
+            },
+            "type": "magento2-component",
+            "extra": {
+                "map": [
+                    [
+                        "*",
+                        "pub/media"
+                    ]
+                ]
+            },
+            "description": "Sample Data media files"
         },
         {
             "name": "magento/zendframework1",

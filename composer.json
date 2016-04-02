@@ -73,7 +73,10 @@
         "ext-mbstring": "*",
         "ext-openssl": "*",
         "ext-zip": "*",
-        "pagseguro/magento2": "dev-fixes"
+        "pagseguro/magento2": "dev-fixes",
+        "magento/module-cms-sample-data": "100.0.*",
+        "magento/module-widget-sample-data": "100.0.*",
+        "magento/module-theme-sample-data": "100.0.*"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1.0",
