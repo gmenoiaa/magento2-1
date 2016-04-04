@@ -5,6 +5,17 @@
  */
 namespace Magento\Catalog\Controller\Adminhtml\Product\Initialization;
 
+use Magento\Catalog\Api\Data\ProductCustomOptionInterfaceFactory as CustomOptionFactory;
+use Magento\Catalog\Api\Data\ProductLinkInterfaceFactory as ProductLinkFactory;
+use Magento\Catalog\Api\ProductRepositoryInterface\Proxy as ProductRepository;
+use Magento\Catalog\Model\Product\Initialization\Helper\ProductLinks;
+use Magento\Catalog\Model\Product\Link\Resolver as LinkResolver;
+use Magento\Framework\App\ObjectManager;
+
+/**
+ * Class Helper
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Helper
 {
     /**
@@ -23,11 +34,6 @@ class Helper
     protected $stockFilter;
 
     /**
-     * @var \Magento\Catalog\Model\Product\Initialization\Helper\ProductLinks
-     */
-    protected $productLinks;
-
-    /**
      * @var \Magento\Backend\Helper\Js
      */
     protected $jsHelper;
@@ -38,10 +44,36 @@ class Helper
     protected $dateFilter;
 
     /**
+     * @var CustomOptionFactory
+     */
+    protected $customOptionFactory;
+
+    /**
+     * @var ProductLinkFactory
+     */
+    protected $productLinkFactory;
+
+    /**
+     * @var ProductRepository
+     */
+    protected $productRepository;
+
+    /**
+     * @var ProductLinks
+     */
+    protected $productLinks;
+
+    /**
+     * @var LinkResolver
+     */
+    private $linkResolver;
+
+    /**
+     * Helper constructor.
      * @param \Magento\Framework\App\RequestInterface $request
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param StockDataFilter $stockFilter
-     * @param \Magento\Catalog\Model\Product\Initialization\Helper\ProductLinks $productLinks
+     * @param ProductLinks $productLinks
      * @param \Magento\Backend\Helper\Js $jsHelper
      * @param \Magento\Framework\Stdlib\DateTime\Filter\Date $dateFilter
      */
@@ -68,10 +100,11 @@ class Helper
      * @return \Magento\Catalog\Model\Product
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function initialize(\Magento\Catalog\Model\Product $product)
     {
-        $productData = $this->request->getPost('product');
+        $productData = (array)$this->request->getPost('product', []);
         unset($productData['custom_attributes']);
         unset($productData['extension_attributes']);
 
@@ -80,9 +113,21 @@ class Helper
             $productData['stock_data'] = $this->stockFilter->filter($stockData);
         }
 
+        $productData = $this->normalize($productData);
+
+        if (!empty($productData['is_downloadable'])) {
+            $productData['product_has_weight'] = 0;
+        }
+
         foreach (['category_ids', 'website_ids'] as $field) {
             if (!isset($productData[$field])) {
                 $productData[$field] = [];
+            }
+        }
+
+        foreach ($productData['website_ids'] as $websiteId => $checkboxValue) {
+            if (!$checkboxValue) {
+                unset($productData['website_ids'][$websiteId]);
             }
         }
 
@@ -111,29 +156,22 @@ class Helper
             $product->lockAttribute('media');
         }
 
-        if ($this->storeManager->hasSingleStore()) {
+        if ($this->storeManager->hasSingleStore() && empty($product->getWebsiteIds())) {
             $product->setWebsiteIds([$this->storeManager->getStore(true)->getWebsite()->getId()]);
         }
 
         /**
          * Check "Use Default Value" checkboxes values
          */
-        $useDefaults = $this->request->getPost('use_default');
-        if ($useDefaults) {
-            foreach ($useDefaults as $attributeCode) {
-                $product->setData($attributeCode, false);
+        $useDefaults = (array)$this->request->getPost('use_default', []);
+
+        foreach ($useDefaults as $attributeCode => $useDefaultState) {
+            if ($useDefaultState) {
+                $product->setData($attributeCode, null);
             }
         }
 
-        $links = $this->request->getPost('links');
-        $links = is_array($links) ? $links : [];
-        $linkTypes = ['related', 'upsell', 'crosssell'];
-        foreach ($linkTypes as $type) {
-            if (isset($links[$type])) {
-                $links[$type] = $this->jsHelper->decodeGridSerializedInput($links[$type]);
-            }
-        }
-        $product = $this->productLinks->initializeLinks($product, $links);
+        $product = $this->setProductLinks($product);
 
         /**
          * Initialize product options
@@ -144,14 +182,89 @@ class Helper
                 $productData['options'],
                 $this->request->getPost('options_use_default')
             );
-            $product->setProductOptions($options);
+            $customOptions = [];
+            foreach ($options as $customOptionData) {
+                if (empty($customOptionData['is_delete'])) {
+                    $customOption = $this->getCustomOptionFactory()->create(['data' => $customOptionData]);
+                    $customOption->setProductSku($product->getSku());
+                    $customOption->setOptionId(null);
+                    $customOptions[] = $customOption;
+                }
+            }
+            $product->setOptions($customOptions);
         }
 
         $product->setCanSaveCustomOptions(
-            (bool)$this->request->getPost('affect_product_custom_options') && !$product->getOptionsReadonly()
+            !empty($productData['affect_product_custom_options']) && !$product->getOptionsReadonly()
         );
 
         return $product;
+    }
+
+    /**
+     * Setting product links
+     *
+     * @param \Magento\Catalog\Model\Product $product
+     * @return \Magento\Catalog\Model\Product
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    protected function setProductLinks(\Magento\Catalog\Model\Product $product)
+    {
+        $links = $this->getLinkResolver()->getLinks();
+
+        $product->setProductLinks([]);
+
+        $product = $this->productLinks->initializeLinks($product, $links);
+        $productLinks = $product->getProductLinks();
+        $linkTypes = [
+            'related' => $product->getRelatedReadonly(),
+            'upsell' => $product->getUpsellReadonly(),
+            'crosssell' => $product->getCrosssellReadonly()
+        ];
+
+        foreach ($linkTypes as $linkType => $readonly) {
+            if (isset($links[$linkType]) && !$readonly) {
+                foreach ((array) $links[$linkType] as $linkData) {
+                    if (empty($linkData['id'])) {
+                        continue;
+                    }
+
+                    $linkProduct = $this->getProductRepository()->getById($linkData['id']);
+                    $link = $this->getProductLinkFactory()->create();
+                    $link->setSku($product->getSku())
+                        ->setLinkedProductSku($linkProduct->getSku())
+                        ->setLinkType($linkType)
+                        ->setPosition(isset($linkData['position']) ? (int)$linkData['position'] : 0);
+                    $productLinks[] = $link;
+                }
+            }
+        }
+
+        return $product->setProductLinks($productLinks);
+    }
+
+    /**
+     * Internal normalization
+     * TODO: Remove this method
+     *
+     * @param array $productData
+     * @return array
+     */
+    protected function normalize(array $productData)
+    {
+        foreach ($productData as $key => $value) {
+            if (is_scalar($value)) {
+                if ($value === 'true') {
+                    $productData[$key] = '1';
+                } elseif ($value === 'false') {
+                    $productData[$key] = '0';
+                }
+            } elseif (is_array($value)) {
+                $productData[$key] = $this->normalize($value);
+            }
+        }
+
+        return $productData;
     }
 
     /**
@@ -178,5 +291,53 @@ class Helper
         }
 
         return $options;
+    }
+
+    /**
+     * @return CustomOptionFactory
+     */
+    private function getCustomOptionFactory()
+    {
+        if (null === $this->customOptionFactory) {
+            $this->customOptionFactory = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get('Magento\Catalog\Api\Data\ProductCustomOptionInterfaceFactory');
+        }
+        return $this->customOptionFactory;
+    }
+
+    /**
+     * @return ProductLinkFactory
+     */
+    private function getProductLinkFactory()
+    {
+        if (null === $this->productLinkFactory) {
+            $this->productLinkFactory = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get('Magento\Catalog\Api\Data\ProductLinkInterfaceFactory');
+        }
+        return $this->productLinkFactory;
+    }
+
+    /**
+     * @return ProductRepository
+     */
+    private function getProductRepository()
+    {
+        if (null === $this->productRepository) {
+            $this->productRepository = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get('Magento\Catalog\Api\ProductRepositoryInterface\Proxy');
+        }
+        return $this->productRepository;
+    }
+
+    /**
+     * @deprecated
+     * @return LinkResolver
+     */
+    private function getLinkResolver()
+    {
+        if (!is_object($this->linkResolver)) {
+            $this->linkResolver = ObjectManager::getInstance()->get(LinkResolver::class);
+        }
+        return $this->linkResolver;
     }
 }

@@ -10,6 +10,11 @@ namespace Magento\Catalog\Model\Product;
 class Copier
 {
     /**
+     * @var Option\Repository
+     */
+    protected $optionRepository;
+
+    /**
      * @var CopyConstructorInterface
      */
     protected $copyConstructor;
@@ -45,7 +50,7 @@ class Copier
         $duplicate = $this->productFactory->create();
         $duplicate->setData($product->getData());
         $duplicate->setIsDuplicate(true);
-        $duplicate->setOriginalId($product->getId());
+        $duplicate->setOriginalId($product->getEntityId());
         $duplicate->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_DISABLED);
         $duplicate->setCreatedAt(null);
         $duplicate->setUpdatedAt(null);
@@ -67,8 +72,20 @@ class Copier
             }
         } while (!$isDuplicateSaved);
 
-        $product->getOptionInstance()->duplicate($product->getId(), $duplicate->getId());
-        $product->getResource()->duplicate($product->getId(), $duplicate->getId());
+        $this->getOptionRepository()->duplicate($product, $duplicate);
+        $product->getResource()->duplicate($product->getEntityId(), $duplicate->getEntityId());
         return $duplicate;
+    }
+
+    /**
+     * @return Option\Repository
+     */
+    private function getOptionRepository()
+    {
+        if (null === $this->optionRepository) {
+            $this->optionRepository = \Magento\Framework\App\ObjectManager::getInstance()
+                ->get('Magento\Catalog\Model\Product\Option\Repository');
+        }
+        return $this->optionRepository;
     }
 }

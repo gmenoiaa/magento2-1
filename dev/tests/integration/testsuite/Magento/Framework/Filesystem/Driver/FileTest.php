@@ -7,6 +7,8 @@
  */
 namespace Magento\Framework\Filesystem\Driver;
 
+use Magento\Framework\Filesystem\DriverInterface;
+
 class FileTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -75,7 +77,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
         if (is_dir($generatedPath)) {
             $this->assertTrue($this->driver->deleteDirectory($generatedPathBase));
         }
+<<<<<<< HEAD
         $this->assertTrue($this->driver->createDirectory($generatedPath, '755'));
+=======
+        $this->assertTrue($this->driver->createDirectory($generatedPath));
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
         $this->assertTrue(is_dir($generatedPath));
     }
 }

@@ -60,6 +60,16 @@ class Topmenu extends Template implements IdentityInterface
     }
 
     /**
+     * Get block cache life time
+     *
+     * @return int
+     */
+    protected function getCacheLifetime()
+    {
+        return parent::getCacheLifetime() ?: 3600;
+    }
+
+    /**
      * Get top menu html
      *
      * @param string $outermostClass
@@ -85,7 +95,6 @@ class Topmenu extends Template implements IdentityInterface
             ['menu' => $this->_menu, 'transportObject' => $transportObject]
         );
         $html = $transportObject->getHtml();
-
         return $html;
     }
 
@@ -332,5 +341,27 @@ class Topmenu extends Template implements IdentityInterface
     public function getIdentities()
     {
         return $this->identities;
+    }
+
+    /**
+     * Get cache key informative items
+     *
+     * @return array
+     */
+    public function getCacheKeyInfo()
+    {
+        $keyInfo = parent::getCacheKeyInfo();
+        $keyInfo[] = $this->getUrl('*/*/*', ['_current' => true, '_query' => '']);
+        return $keyInfo;
+    }
+
+    /**
+     * Get tags array for saving cache
+     *
+     * @return array
+     */
+    protected function getCacheTags()
+    {
+        return array_merge(parent::getCacheTags(), $this->getIdentities());
     }
 }

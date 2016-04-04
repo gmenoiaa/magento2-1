@@ -10,6 +10,7 @@ use Magento\Framework\App\DeploymentConfig;
 use Magento\Framework\Config\Data\ConfigData;
 use Magento\Framework\App\DeploymentConfig\Writer;
 use Magento\Framework\Setup\Option\AbstractConfigOption;
+use Magento\Framework\Setup\FilePermissions;
 
 class ConfigModel
 {
@@ -159,9 +160,9 @@ class ConfigModel
      */
     private function checkInstallationFilePermissions()
     {
-        $results = $this->filePermissions->getMissingWritableDirectoriesForInstallation();
+        $results = $this->filePermissions->getMissingWritablePathsForInstallation();
         if ($results) {
-            $errorMsg = "Missing write permissions to the following directories: '" . implode("', '", $results) . "'";
+            $errorMsg = "Missing write permissions to the following paths: '" . implode("', '", $results) . "'";
             throw new \Exception($errorMsg);
         }
     }

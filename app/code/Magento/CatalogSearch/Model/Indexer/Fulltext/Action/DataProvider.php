@@ -6,6 +6,10 @@
 namespace Magento\CatalogSearch\Model\Indexer\Fulltext\Action;
 
 use Magento\Framework\App\ResourceConnection;
+<<<<<<< HEAD
+=======
+use Magento\Catalog\Api\Data\ProductInterface;
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -89,6 +93,14 @@ class DataProvider
     private $connection;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var \Magento\Framework\Model\Entity\EntityMetadata
+     */
+    private $metadata;
+
+    /**
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
      * @param ResourceConnection $resource
      * @param \Magento\Catalog\Model\Product\Type $catalogProductType
      * @param \Magento\Eav\Model\Config $eavConfig
@@ -96,6 +108,10 @@ class DataProvider
      * @param \Magento\CatalogSearch\Model\ResourceModel\EngineProvider $engineProvider
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+<<<<<<< HEAD
+=======
+     * @param \Magento\Framework\Model\Entity\MetadataPool $metadataPool
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
      */
     public function __construct(
         ResourceConnection $resource,
@@ -104,7 +120,12 @@ class DataProvider
         \Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory $prodAttributeCollectionFactory,
         \Magento\CatalogSearch\Model\ResourceModel\EngineProvider $engineProvider,
         \Magento\Framework\Event\ManagerInterface $eventManager,
+<<<<<<< HEAD
         \Magento\Store\Model\StoreManagerInterface $storeManager
+=======
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\Model\Entity\MetadataPool $metadataPool
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
     ) {
         $this->resource = $resource;
         $this->connection = $resource->getConnection();
@@ -114,6 +135,10 @@ class DataProvider
         $this->eventManager = $eventManager;
         $this->storeManager = $storeManager;
         $this->engine = $engineProvider->get();
+<<<<<<< HEAD
+=======
+        $this->metadata = $metadataPool->getMetadata(ProductInterface::class);
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
     }
 
     /**
@@ -278,16 +303,37 @@ class DataProvider
         $result = [];
         $selects = [];
         $ifStoreValue = $this->connection->getCheckSql('t_store.value_id > 0', 't_store.value', 't_default.value');
+<<<<<<< HEAD
+=======
+        $linkField = $this->metadata->getLinkField();
+        $productLinkFieldsToEntityIdMap = $this->connection->fetchPairs(
+            $this->connection->select()->from(
+                ['cpe' => $this->getTable('catalog_product_entity')],
+                [$linkField, 'entity_id']
+            )->where(
+                'cpe.entity_id IN (?)',
+                $productIds
+            )
+        );
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
         foreach ($attributeTypes as $backendType => $attributeIds) {
             if ($attributeIds) {
                 $tableName = $this->getTable('catalog_product_entity_' . $backendType);
                 $selects[] = $this->connection->select()->from(
                     ['t_default' => $tableName],
+<<<<<<< HEAD
                     ['entity_id', 'attribute_id']
                 )->joinLeft(
                     ['t_store' => $tableName],
                     $this->connection->quoteInto(
                         't_default.entity_id=t_store.entity_id' .
+=======
+                    [$linkField, 'attribute_id']
+                )->joinLeft(
+                    ['t_store' => $tableName],
+                    $this->connection->quoteInto(
+                        't_default.' . $linkField . '=t_store.' . $linkField .
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
                         ' AND t_default.attribute_id=t_store.attribute_id' .
                         ' AND t_store.store_id = ?',
                         $storeId
@@ -300,8 +346,13 @@ class DataProvider
                     't_default.attribute_id IN (?)',
                     $attributeIds
                 )->where(
+<<<<<<< HEAD
                     't_default.entity_id IN (?)',
                     $productIds
+=======
+                    't_default.' . $linkField . ' IN (?)',
+                    array_keys($productLinkFieldsToEntityIdMap)
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
                 );
             }
         }
@@ -310,7 +361,12 @@ class DataProvider
             $select = $this->connection->select()->union($selects, \Magento\Framework\DB\Select::SQL_UNION_ALL);
             $query = $this->connection->query($select);
             while ($row = $query->fetch()) {
+<<<<<<< HEAD
                 $result[$row['entity_id']][$row['attribute_id']] = $row['value'];
+=======
+                $entityId = $productLinkFieldsToEntityIdMap[$row[$linkField]];
+                $result[$entityId][$row['attribute_id']] = $row['value'];
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
             }
         }
 
@@ -351,10 +407,22 @@ class DataProvider
             $select = $this->connection->select()->from(
                 ['main' => $this->getTable($relation->getTable())],
                 [$relation->getChildFieldName()]
+<<<<<<< HEAD
             )->where(
                 $relation->getParentFieldName() . ' = ?',
                 $productId
             );
+=======
+            );
+            $select->join(
+                ['e' => $this->resource->getTableName('catalog_product_entity')],
+                'e.' . $this->metadata->getLinkField() . ' = main.' . $relation->getParentFieldName()
+            )->where(
+                'e.entity_id = ?',
+                $productId
+            );
+
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
             if ($relation->getWhere() !== null) {
                 $select->where($relation->getWhere());
             }

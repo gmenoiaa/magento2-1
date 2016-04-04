@@ -63,7 +63,11 @@ define([
             expect(iframe.comments().length).toEqual(0);
         });
     });
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
     describe('Testing FormKey Widget', function () {
         var wdContainer,
             msgCookieName,

@@ -14,7 +14,10 @@ use Magento\Catalog\Model\Product\Type;
 use Magento\Catalog\Model\ProductFactory;
 use Magento\Eav\Model\Entity\Attribute;
 use Magento\Framework\View\Element\Template\Context;
+<<<<<<< HEAD
 use Magento\Framework\App\ObjectManager;
+=======
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
 
 class Bulk extends \Magento\Ui\Block\Component\StepsWizard\StepAbstract
 {
@@ -23,13 +26,16 @@ class Bulk extends \Magento\Ui\Block\Component\StepsWizard\StepAbstract
 
     /**
      * @var ProductFactory
+<<<<<<< HEAD
      */
     private $productFactory;
 
     /**
      * @var \Magento\ConfigurableProduct\Model\Product\VariationMediaAttributes
+=======
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
      */
-    protected $variationMediaAttributes;
+    private $productFactory;
 
     /**
      * @var Config
@@ -39,16 +45,27 @@ class Bulk extends \Magento\Ui\Block\Component\StepsWizard\StepAbstract
     /**
      * @param Context $context
      * @param Image $image
+<<<<<<< HEAD
      * @param \Magento\ConfigurableProduct\Model\Product\VariationMediaAttributes $variationMediaAttributes
+=======
+     * @param Config $catalogProductMediaConfig
+     * @param ProductFactory $productFactory
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
      */
     public function __construct(
         Context $context,
         Image $image,
+<<<<<<< HEAD
         \Magento\ConfigurableProduct\Model\Product\VariationMediaAttributes $variationMediaAttributes
+=======
+        Config $catalogProductMediaConfig,
+        ProductFactory $productFactory
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
     ) {
         parent::__construct($context);
         $this->image = $image;
-        $this->variationMediaAttributes = $variationMediaAttributes;
+        $this->productFactory = $productFactory;
+        $this->catalogProductMediaConfig = $catalogProductMediaConfig;
     }
 
     /**
@@ -144,12 +161,18 @@ class Bulk extends \Magento\Ui\Block\Component\StepsWizard\StepAbstract
     public function getImageTypes()
     {
         $imageTypes = [];
+<<<<<<< HEAD
         foreach ($this->getCatalogProductMediaConfig()->getMediaAttributeCodes() as $attributeCode) {
+=======
+        foreach ($this->catalogProductMediaConfig->getMediaAttributeCodes() as $attributeCode) {
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
             /* @var $attribute Attribute */
             $imageTypes[$attributeCode] = [
                 'code' => $attributeCode,
                 'value' => '',
-                'name' => '',
+                'label' => $attributeCode,
+                'scope' => '',
+                'name' => $attributeCode,
             ];
         }
         return $imageTypes;
@@ -162,7 +185,11 @@ class Bulk extends \Magento\Ui\Block\Component\StepsWizard\StepAbstract
     {
         static $simple;
         if (empty($simple)) {
+<<<<<<< HEAD
             $simple = $this->getProductFactory()->create()->setTypeId(Type::TYPE_SIMPLE)->getMediaAttributes();
+=======
+            $simple = $this->productFactory->create()->setTypeId(Type::TYPE_SIMPLE)->getMediaAttributes();
+>>>>>>> 2abc5a35b10de4d979a9155a47c5778cee85b9bf
         }
         return $simple;
     }

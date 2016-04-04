@@ -15,7 +15,7 @@ class Write extends Read implements WriteInterface
      *
      * @var int
      */
-    protected $permissions = DriverInterface::WRITEABLE_DIRECTORY_MODE;
+    protected $permissions = 0777;
 
     /**
      * Constructor
@@ -67,7 +67,7 @@ class Write extends Read implements WriteInterface
         $absolutePath = $this->driver->getAbsolutePath($this->path, $path);
         if (!$this->driver->isFile($absolutePath)) {
             throw new FileSystemException(
-                new \Magento\Framework\Phrase('The "%1" file doesn\'t exist or not a file', [$absolutePath])
+                new \Magento\Framework\Phrase('The file "%1" doesn\'t exist or not a file', [$absolutePath])
             );
         }
     }
